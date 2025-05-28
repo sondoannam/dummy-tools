@@ -39,11 +39,11 @@ jobs:
         run: npm run build
 
       - name: Run tests
-        run: npm test
-
+        run: npm test      
+      
       - name: Publish to NPM (even versions only)
         if: ${{ steps.check-version.outputs.is_even == '1' }}
-        run: npm publish
+        run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 

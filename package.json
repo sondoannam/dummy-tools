@@ -1,7 +1,10 @@
 {
-  "name": "dummy-tools",
+  "name": "@sondn/dummy-tools",
   "version": "1.0.2",
   "description": "This is a set of my idea tools",
+  "publishConfig": {
+    "access": "public"
+  },
   "main": "dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
