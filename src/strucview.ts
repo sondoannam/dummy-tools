@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
+import { PrintTreeOptions, EntryInfo } from "./types";
 
 // Directories to always collapse
 const SKIP_DIRS = new Set(["node_modules", "next", "dist", "build", ".git"]);
@@ -7,18 +8,13 @@ const SKIP_DIRS = new Set(["node_modules", "next", "dist", "build", ".git"]);
 /**
  * Recursively prints a directory tree up to a specified depth,
  * with a placeholder "[...]" when further nesting is omitted or skipped.
- *
- * @param dirPath - The root directory to print
- * @param maxDepth - Maximum depth (0-based) to traverse; Infinity for full depth
- * @param prefix - Prefix for formatting each line
- * @param depth - Current recursion depth
  */
-export async function printTree(
-  dirPath: string,
-  maxDepth: number,
+export async function printTree({
+  dirPath,
+  maxDepth,
   prefix = "",
-  depth = 0
-): Promise<void> {
+  depth = 0,
+}: PrintTreeOptions): Promise<void> {
   // Get the actual directory name
   const name = path.basename(path.resolve(dirPath));
   // Only print the directory name when it's the first call (depth 0) or for subdirectories
@@ -35,14 +31,18 @@ export async function printTree(
   } catch {
     return;
   }
-
   // Get file info for all entries
   const entryInfos = await Promise.all(
     entries.map(async (entry) => {
       const fullPath = path.join(dirPath, entry);
       try {
         const stats = await fs.promises.stat(fullPath);
-        return { entry, fullPath, stats, isDirectory: stats.isDirectory() };
+        return {
+          entry,
+          fullPath,
+          stats,
+          isDirectory: stats.isDirectory(),
+        } as EntryInfo;
       } catch {
         return null;
       }
@@ -87,7 +87,12 @@ export async function printTree(
         );
       } else {
         console.log(linePrefix + entry);
-        await printTree(fullPath, maxDepth, childPrefix, depth + 1);
+        await printTree({
+          dirPath: fullPath,
+          maxDepth,
+          prefix: childPrefix,
+          depth: depth + 1,
+        });
       }
     } else {
       console.log(linePrefix + entry);

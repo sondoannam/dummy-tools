@@ -2,8 +2,8 @@
   "name": "dummy-tools",
   "version": "1.0.0",
   "description": "This is a set of my idea tools",
-  "main": "dist/cli.js",
-  "types": "./dist/cli.d.ts",
+  "main": "dist/index.js",
+  "types": "./dist/index.d.ts",
   "bin": {
     "dummie": "./dist/cli.js"
   },
