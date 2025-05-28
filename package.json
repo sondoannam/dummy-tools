@@ -1,6 +1,6 @@
 {
   "name": "dummy-tools",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "This is a set of my idea tools",
   "main": "dist/index.js",
   "types": "./dist/index.d.ts",
@@ -15,7 +15,10 @@
     "build": "tsc",
     "start": "ts-node src/cli.ts",
     "prepublishOnly": "npm run build",
-    "test": "echo \"No tests specified\" && exit 0"
+    "test": "echo \"No tests specified\" && exit 0",
+    "version-status": "node version-helper.js status",
+    "version-dev": "node version-helper.js dev",
+    "version-release": "node version-helper.js release"
   },
   "keywords": [
     "cli",

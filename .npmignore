@@ -15,3 +15,4 @@ test/
 
 # Build artifacts
 *.tsbuildinfo
+version-helper.js
