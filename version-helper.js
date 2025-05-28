@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Version Helper Script for dummy-tools
+ * Version Helper Script for dummie-tools
  * 
  * This script helps manage version numbers according to the project's strategy:
  * - Even minor versions (1.0.x, 1.2.x) are stable and published to npm
@@ -21,7 +21,7 @@ const [major, minor, patch] = currentVersion.split('.').map(Number);
 
 function displayHelp() {
   console.log(`
-Version Helper for dummy-tools (current: ${currentVersion})
+Version Helper for dummie-tools (current: ${currentVersion})
 
 Commands:
   node version-helper.js dev      # Bump to next development version (odd minor)

@@ -5,7 +5,7 @@ import { StrucViewCommandOptions, isNumber } from "./types";
 
 const program = new Command();
 
-program.name("dummie").description("dummy-tools CLI").version("1.0.0");
+program.name("dummie").description("dummie-tools CLI").version("1.0.0");
 
 program
   .command("strucview")

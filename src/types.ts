@@ -1,5 +1,5 @@
 /**
- * Type definitions for dummy-tools
+ * Type definitions for dummie-tools
  */
 
 /**

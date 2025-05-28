@@ -1,7 +1,7 @@
 /**
- * dummy-tools - A collection of useful utility functions
+ * dummie-tools - A collection of useful utility functions
  *
- * @module dummy-tools
+ * @module dummie-tools
  */
 
 // Export the main functionality

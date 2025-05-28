@@ -1,17 +1,17 @@
-# Dummy Tools
+# Dummie Tools
 
 A collection of useful command-line utilities built with TypeScript.
 
 ## Installation
 
 ```bash
-npm install -g dummy-tools
+npm install -g dummie-tools
 ```
 
 Or you can use it directly with npx:
 
 ```bash
-npx dummy-tools [command] [options]
+npx dummie-tools [command] [options]
 ```
 
 ## Commands
