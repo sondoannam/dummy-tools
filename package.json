@@ -1,0 +1,26 @@
+{
+  "name": "dummy-tools",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "bin": {
+    "dummie": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "ts-node src/cli.ts"
+  },
+  "keywords": [],
+  "author": "sondoannam",
+  "license": "MIT",
+  "type": "commonjs",
+  "dependencies": {
+    "commander": "^14.0.0"
+  },
+  "devDependencies": {
+    "@types/commander": "^2.12.0",
+    "@types/node": "^22.15.24",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  }
+}
