@@ -1,19 +1,43 @@
 {
   "name": "dummy-tools",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "This is a set of my idea tools",
+  "main": "dist/cli.js",
+  "types": "./dist/cli.d.ts",
   "bin": {
     "dummie": "./dist/cli.js"
   },
+  "files": [
+    "dist",
+    "LICENSE"
+  ],
   "scripts": {
     "build": "tsc",
-    "start": "ts-node src/cli.ts"
+    "start": "ts-node src/cli.ts",
+    "prepublishOnly": "npm run build",
+    "test": "echo \"No tests specified\" && exit 0"
   },
-  "keywords": [],
-  "author": "sondoannam",
+  "keywords": [
+    "cli",
+    "tools",
+    "typescript",
+    "directory-tree",
+    "file-structure"
+  ],
+  "author": "Son Doan Nam <sondoannam202@gmail.com>",
   "license": "MIT",
   "type": "commonjs",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sondoannam/dummy-tools.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sondoannam/dummy-tools/issues"
+  },
+  "homepage": "https://github.com/sondoannam/dummy-tools#readme",
+  "engines": {
+    "node": ">=14.0.0"
+  },
   "dependencies": {
     "commander": "^14.0.0"
   },
@@ -21,6 +45,7 @@
     "@types/commander": "^2.12.0",
     "@types/node": "^22.15.24",
     "ts-node": "^10.9.2",
+    "tsup": "^8.5.0",
     "typescript": "^5.8.3"
   }
 }

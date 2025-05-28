@@ -1,0 +1,16 @@
+# Source files
+src/
+
+# Development files
+.git
+.gitignore
+tsconfig.json
+tsup.config.ts
+
+# Test files
+test/
+*.test.ts
+*.spec.ts
+
+# Build artifacts
+*.tsbuildinfo
