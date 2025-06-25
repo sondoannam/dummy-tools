@@ -6,6 +6,7 @@
 
 // Export the main functionality
 export { printTree } from "./strucview";
+export { translateText } from "./translate";
 
 // Export types
 export * from "./types";

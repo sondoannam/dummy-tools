@@ -97,3 +97,21 @@ export function isString(value: unknown): value is string {
 export function isNumber(value: unknown): value is number {
   return typeof value === "number" && !isNaN(value);
 }
+
+/**
+ * Type guard to check if a value is an object
+ *
+ * @param value - The value to check
+ * @returns True if the value is an object, false otherwise
+ */
+export function isObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+/**
+ * Options for the translate command
+ */
+export interface TranslateCommandOptions {
+  from: string;
+  to: string;
+}

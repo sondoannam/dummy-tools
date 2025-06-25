@@ -1,6 +1,6 @@
 {
   "name": "dummie-tools",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "This is a set of my idea tools",
   "publishConfig": {
     "access": "public"
@@ -12,16 +12,19 @@
   },
   "files": [
     "dist",
-    "LICENSE"
+    "LICENSE",
+    "postinstall.js"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "node build.js",
     "start": "ts-node src/cli.ts",
     "prepublishOnly": "npm run build",
+    "postinstall": "node postinstall.js",
     "test": "echo \"No tests specified\" && exit 0",
     "version-status": "node version-helper.js status",
     "version-dev": "node version-helper.js dev",
-    "version-release": "node version-helper.js release"
+    "version-release": "node version-helper.js release",
+    "dev": "ts-node src/cli.ts"
   },
   "keywords": [
     "cli",
@@ -45,7 +48,9 @@
     "node": ">=14.0.0"
   },
   "dependencies": {
-    "commander": "^14.0.0"
+    "@vitalets/google-translate-api": "^9.2.1",
+    "commander": "^14.0.0",
+    "puppeteer-core": "^24.10.2"
   },
   "devDependencies": {
     "@types/commander": "^2.12.0",
