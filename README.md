@@ -75,6 +75,16 @@ Check if you're running the latest version of dummie-tools.
 dummie version-check
 ```
 
+### browser-detect
+
+Detect browser installations for the translation feature.
+
+```bash
+dummie browser-detect
+```
+
+This command helps you configure the Chrome browser path for the translation feature's fallback mechanism. It will scan common installation locations and provide instructions for setting the `CHROME_PATH` environment variable.
+
 ## Global Options
 
 These options are available with all commands:

@@ -1,9 +1,34 @@
 #!/usr/bin/env node
+
+// Suppress specific deprecation warnings in production
+// This prevents the punycode deprecation warning from showing to end users
+if (process.env.NODE_ENV !== 'development') {
+  // Use a direct approach to suppress only punycode warnings
+  const originalProcessEmit = process.emit;
+  // @ts-ignore - This is a hack to suppress specific warnings without TypeScript errors
+  process.emit = function(event, warning, ...args) {
+    if (
+      event === 'warning' && 
+      warning && 
+      typeof warning === 'object' && 
+      'name' in warning &&
+      warning.name === 'DeprecationWarning' &&
+      'message' in warning &&
+      typeof warning.message === 'string' && 
+      warning.message.includes('punycode')
+    ) {
+      return false;
+    }
+    // @ts-ignore - Pass through all other events
+    return originalProcessEmit.apply(process, [event, warning, ...args]);
+  };
+}
+
 import { Command } from "commander";
 import { printTree } from "./strucview";
 import { StrucViewCommandOptions, TranslateCommandOptions, isNumber } from "./types";
 import { translateText } from "./translate";
-import { readFileSync } from 'fs';
+import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 import { execSync } from 'child_process';
 
@@ -23,6 +48,17 @@ program
 program
   .option('-d, --debug', 'enable debug mode')
   .option('-q, --quiet', 'suppress output');
+
+// Set environment variables based on global options
+program.hook('preAction', (thisCommand) => {
+  const opts = thisCommand.opts();
+  if (opts.debug) {
+    process.env.DEBUG = 'true';
+  }
+  if (opts.quiet) {
+    process.env.QUIET = 'true';
+  }
+});
 
 // View structure command
 program
@@ -121,6 +157,70 @@ program
       }
     } catch (err) {
       console.error('Failed to check for updates:', err instanceof Error ? err.message : String(err));
+    }
+  });
+
+// Browser detection command - helps with puppeteer configuration
+program
+  .command('browser-detect')
+  .description('detect browser installations for translation feature')
+  .action(() => {
+    console.log('Detecting browsers for translation feature...');
+    
+    // Common Chrome paths by platform
+    const chromePaths = {
+      win32: [
+        'C:/Program Files/Google/Chrome/Application/chrome.exe',
+        'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe',
+        process.env.LOCALAPPDATA + '/Google/Chrome/Application/chrome.exe'
+      ],
+      darwin: [
+        '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+        '/Applications/Chromium.app/Contents/MacOS/Chromium'
+      ],
+      linux: [
+        '/usr/bin/google-chrome',
+        '/usr/bin/chromium-browser',
+        '/usr/bin/chromium'
+      ]
+    };
+    
+    // Get paths for current platform
+    const paths = chromePaths[process.platform as 'win32' | 'darwin' | 'linux'] || [];
+    let browserFound = false;
+    
+    for (const path of paths) {
+      try {
+        if (existsSync(path)) {
+          console.log(`✅ Found Chrome at: ${path}`);
+          console.log('');
+          console.log('To use this browser for translations, set the CHROME_PATH environment variable:');
+          console.log('');
+          if (process.platform === 'win32') {
+            console.log(`setx CHROME_PATH "${path}"`);
+          } else {
+            console.log(`export CHROME_PATH="${path}"`);
+          }
+          browserFound = true;
+          break;
+        }
+      } catch (e) {
+        // Ignore errors
+      }
+    }
+    
+    if (!browserFound) {
+      console.log('❌ No Chrome installation found in common locations.');
+      console.log('');
+      console.log('Manual configuration needed:');
+      console.log('1. Install Google Chrome');
+      console.log('2. Set the CHROME_PATH environment variable to your chrome.exe location');
+      console.log('');
+      if (process.platform === 'win32') {
+        console.log('Example: setx CHROME_PATH "C:/path/to/chrome.exe"');
+      } else {
+        console.log('Example: export CHROME_PATH="/path/to/chrome"');
+      }
     }
   });
 
