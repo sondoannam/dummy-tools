@@ -170,10 +170,10 @@ These options are available with all commands:
 - Text translation with fallback mechanism
 - System diagnostics and version checking
 
-## License
-
-MIT © [Doan Nam Son](https://github.com/sondoannam)
-
 ## Issues
 
 Feel free to open issues for this pkg.
+
+## License
+
+MIT © [Doan Nam Son](https://github.com/sondoannam)
