@@ -35,6 +35,50 @@ Use `la` as the level to display all levels:
 dummie strucview --level la
 ```
 
+Example output:
+
+```
+face-recognition-server
+├── __pycache__
+│   ├── api.cpython-312.pyc
+│   ├── db.cpython-312.pyc
+│   ├── main.cpython-312.pyc
+    └── ws.cpython-312.pyc
+├── .git
+│   └── [...]
+├── static
+│   ├── index.html
+│   ├── script.js
+    └── style.css
+├── test-app
+│   ├── .github
+│   │   └── [...]
+│   ├── node_modules
+│   │   └── [...]
+│   ├── public
+│   │   └── [...]
+    └── src
+├── tests
+│   ├── __pycache__
+│   ├── images
+    └── test_main.py
+├── venv
+│   ├── Include
+│   ├── Lib
+│   ├── Scripts
+    └── pyvenv.cfg
+├── .env
+├── .gitignore
+├── api.py
+├── db.py
+├── main.py
+├── README.md
+├── requirements.txt
+└── ws.py
+```
+
+The tool automatically collapses large directories and shows a directory-first structure, making it easy to understand project layouts.
+
 ### translate
 
 Translate text between languages using Google Translate API with a Puppeteer fallback mechanism.
@@ -44,13 +88,26 @@ dummie translate <text> [options]
 ```
 
 Options:
-- `-f, --from <lang>`: Source language code (default: "auto")
-- `-t, --to <lang>`: Target language code (default: "en")
+- `-f, --from <lang>`: Source language code (default: "en")
+- `-t, --to <lang>`: Target language code (default: "vi")
 
-Example:
+Examples:
+
 ```bash
+# From French to English
 dummie translate "Bonjour le monde" --from fr --to en
+# Output: Hello world
+
+# From English to French
+dummie translate "Hello, how are you today?" --from en --to fr
+# Output: Bonjour, comment vas-tu aujourd'hui?
+
+# From Vietnamese to English
+dummie translate "Vô lý" --from vi --to en
+# Output: Unreasonable
 ```
+
+The translation feature uses a reliable HTTP API first and falls back to a browser-based method if the API fails, ensuring robust translations even during API limitations.
 
 ### info
 
@@ -85,6 +142,17 @@ dummie browser-detect
 
 This command helps you configure the Chrome browser path for the translation feature's fallback mechanism. It will scan common installation locations and provide instructions for setting the `CHROME_PATH` environment variable.
 
+Example output:
+
+```
+Detecting browsers for translation feature...
+✅ Found Chrome at: C:/Program Files/Google/Chrome/Application/chrome.exe
+
+To use this browser for translations, set the CHROME_PATH environment variable:
+
+setx CHROME_PATH "C:/Program Files/Google/Chrome/Application/chrome.exe"
+```
+
 ## Global Options
 
 These options are available with all commands:
@@ -105,3 +173,7 @@ These options are available with all commands:
 ## License
 
 MIT © [Doan Nam Son](https://github.com/sondoannam)
+
+## Issues
+
+Feel free to open issues for this pkg.
