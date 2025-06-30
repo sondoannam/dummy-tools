@@ -28,11 +28,40 @@ Options:
 
 - `-l, --level <n>`: Maximum depth level to display (default: "3")
 - `-d, --dir <path>`: Directory to scan (default: ".")
+- `-s, --skip <name>`: Directory name to skip (can be used multiple times)
+- `-n, --no-interactive`: Disable interactive prompts for directories
 
 Use `la` as the level to display all levels:
 
 ```bash
 dummie strucview --level la
+```
+
+Example with skip option:
+
+```bash
+# Skip both 'node_modules' and 'dist' directories
+dummie strucview --skip node_modules --skip dist
+
+# Shorthand version
+dummie strucview -s node_modules -s dist
+```
+
+By default, you'll be prompted interactively for each common directory (node_modules, .git, etc.) and any directories you choose to skip will be completely excluded from the output:
+
+```
+Skip directory "node_modules"? (y/n): y
+Skip directory ".git"? (y/n): y
+```
+
+If you want to disable the interactive prompts:
+
+```bash
+# Disable interactive prompts
+dummie strucview --no-interactive
+
+# Shorthand version
+dummie strucview -n
 ```
 
 Example output:

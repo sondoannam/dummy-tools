@@ -25,6 +25,16 @@ export interface PrintTreeOptions {
    * Current recursion depth
    */
   depth?: number;
+
+  /**
+   * Additional directory names to skip (in addition to defaults)
+   */
+  skipDirs?: Set<string>;
+
+  /**
+   * Whether to interactively prompt for skipping directories
+   */
+  interactive?: boolean;
 }
 
 /**
@@ -66,6 +76,17 @@ export interface StrucViewCommandOptions {
    * Directory path to scan
    */
   dir: string;
+
+  /**
+   * List of directory names to skip
+   * Can be repeated multiple times
+   */
+  skip: string[];
+
+  /**
+   * Whether to interactively prompt for skipping directories
+   */
+  interactive: boolean;
 }
 
 /**

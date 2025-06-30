@@ -37,6 +37,11 @@ const packageJsonPath = join(__dirname, '..', 'package.json');
 const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
 const version = packageJson.version;
 
+// Helper function to collect multiple option values
+function collect(value: string, previous: string[]): string[] {
+  return previous.concat([value]);
+}
+
 const program = new Command();
 
 program
@@ -66,6 +71,8 @@ program
   .description("print directory tree view")
   .option("-l, --level <n>", 'max depth level (or use "la" for all)', "3")
   .option("-d, --dir <path>", "directory to scan", ".")
+  .option("-s, --skip <name>", "directory name to skip (can be used multiple times)", collect, [])
+  .option("-n, --no-interactive", "disable interactive prompts for directories")
   .action(async (opts: StrucViewCommandOptions) => {
     // Validate and process the level option
     let maxDepth: number;
@@ -87,11 +94,16 @@ program
       process.exit(1);
     }
 
+    // Create a Set of directories to skip
+    const skipDirs = new Set(opts.skip);
+
     // Execute the command
     try {
       await printTree({
         dirPath: dir,
         maxDepth,
+        skipDirs,
+        interactive: opts.interactive,
       });
     } catch (error) {
       console.error(
