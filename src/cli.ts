@@ -44,6 +44,16 @@ function collect(value: string, previous: string[]): string[] {
 
 const program = new Command();
 
+// Configure option parsing behavior for Commander.js v9+
+program.configureOutput({
+  writeErr: (str) => process.stderr.write(str),
+  writeOut: (str) => process.stdout.write(str)
+});
+
+// Fix option parsing to properly handle -d dir and --dir dir formats
+program.enablePositionalOptions(true);
+program.passThroughOptions(false);
+
 program
   .name("dummie")
   .description("dummie-tools CLI")
@@ -74,12 +84,15 @@ program
   .option("-s, --skip <name>", "directory name to skip (can be used multiple times)", collect, [])
   .option("-n, --no-interactive", "disable interactive prompts for directories")
   .action(async (opts: StrucViewCommandOptions) => {
+    // Use the typed options directly
+    const options = opts;
+    
     // Validate and process the level option
     let maxDepth: number;
-    if (opts.level === "la") {
+    if (options.level === "la") {
       maxDepth = Infinity;
     } else {
-      const parsedLevel = parseInt(opts.level, 10);
+      const parsedLevel = parseInt(options.level, 10);
       if (!isNumber(parsedLevel) || parsedLevel < 0) {
         console.error("Error: Level must be a non-negative number or 'la'");
         process.exit(1);
@@ -88,14 +101,14 @@ program
     }
 
     // Validate the directory path
-    const dir = opts.dir;
+    const dir = options.dir;
     if (typeof dir !== "string") {
       console.error("Error: Directory must be a string");
       process.exit(1);
     }
 
     // Create a Set of directories to skip
-    const skipDirs = new Set(opts.skip);
+    const skipDirs = new Set(options.skip);
 
     // Execute the command
     try {
@@ -103,7 +116,7 @@ program
         dirPath: dir,
         maxDepth,
         skipDirs,
-        interactive: opts.interactive,
+        interactive: options.interactive,
       });
     } catch (error) {
       console.error(

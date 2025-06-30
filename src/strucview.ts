@@ -4,7 +4,7 @@ import * as readline from "readline";
 import { PrintTreeOptions, EntryInfo } from "./types";
 
 // Default directories to consider for skipping
-const DEFAULT_SKIP_DIRS = new Set(["node_modules", "next", "dist", "build", ".git"]);
+const DEFAULT_SKIP_DIRS = new Set(["node_modules", "next", "dist", "build", ".git", ".github"]);
 
 // Cache for user prompt responses to avoid asking multiple times for the same directory
 const userSkipChoices = new Map<string, boolean>();
@@ -35,22 +35,85 @@ async function promptToSkip(dirName: string): Promise<boolean> {
 }
 
 /**
- * Recursively prints a directory tree up to a specified depth,
- * with a placeholder "[...]" when further nesting is omitted or skipped.
+ * Collect all directories that should be skipped based on DEFAULT_SKIP_DIRS and user input
  */
-export async function printTree({
-  dirPath,
-  maxDepth,
+async function collectSkipDirectories(
+  rootPath: string, 
+  maxDepth: number, 
+  initialSkipDirs: Set<string>,
+  interactive: boolean
+): Promise<Set<string>> {
+  // Start with user-provided skip directories
+  const skipDirs = new Set<string>(initialSkipDirs);
+  
+  // If not interactive, just add all default skip directories
+  if (!interactive) {
+    return skipDirs;
+  }
+  
+  // Otherwise, we need to scan the directory to find all directories that match DEFAULT_SKIP_DIRS
+  // and ask the user for each one
+  async function scan(dirPath: string, depth: number = 0): Promise<void> {
+    if (depth >= maxDepth) return;
+    
+    let entries: string[];
+    try {
+      entries = await fs.promises.readdir(dirPath);
+    } catch {
+      return;
+    }
+
+    // Process all directories first
+    for (const entry of entries) {
+      const fullPath = path.join(dirPath, entry);
+      try {
+        const stats = await fs.promises.stat(fullPath);
+        
+        if (stats.isDirectory()) {
+          // Check if this directory should be skipped
+          const relativePath = path.relative(rootPath, fullPath);
+          
+          if (DEFAULT_SKIP_DIRS.has(entry) && !skipDirs.has(relativePath)) {
+            // Ask user if they want to skip this directory
+            const shouldSkip = await promptToSkip(entry);
+            if (shouldSkip) {
+              skipDirs.add(relativePath);
+            } else {
+              // If not skipping, scan its subdirectories
+              await scan(fullPath, depth + 1);
+            }
+          } else {
+            // Not a default skip directory, scan it
+            await scan(fullPath, depth + 1);
+          }
+        }
+      } catch {
+        // Skip any errors
+      }
+    }
+  }
+
+  // Start scanning from the root
+  await scan(rootPath);
+  return skipDirs;
+}
+
+/**
+ * Print directory tree with pre-determined skip directories
+ */
+async function printTreeWithSkips(
+  dirPath: string, 
+  maxDepth: number, 
+  skipDirs: Set<string>,
   prefix = "",
-  depth = 0,
-  skipDirs = new Set(),
-  interactive = true, // Default to interactive mode for better UX
-}: PrintTreeOptions): Promise<void> {
+  depth = 0
+): Promise<void> {
   // Get the actual directory name
   const name = path.basename(path.resolve(dirPath));
-  // Only print the directory name when it's the first call (depth 0) or for subdirectories
-  if (depth === 0 || prefix !== "") {
-    console.log(prefix + name);
+  
+  // Print the directory name only once at the beginning
+  if (depth === 0) {
+    console.log(name);
   }
 
   // If at or beyond max depth, we stop here
@@ -62,6 +125,7 @@ export async function printTree({
   } catch {
     return;
   }
+  
   // Get file info for all entries
   const entryInfos = await Promise.all(
     entries.map(async (entry) => {
@@ -91,53 +155,48 @@ export async function printTree({
       return a.entry.localeCompare(b.entry);
     });
 
-  const lastIndex = filteredEntries.length - 1;
+  // Filter out directories to skip
+  const visibleEntries = filteredEntries.filter(({ entry }) => !skipDirs.has(entry));
 
-  for (let i = 0; i < filteredEntries.length; i++) {
-    const { entry, fullPath, stats, isDirectory } = filteredEntries[i];
+  const lastIndex = visibleEntries.length - 1;
+
+  for (let i = 0; i < visibleEntries.length; i++) {
+    const { entry, fullPath, isDirectory } = visibleEntries[i];
     const isLast = i === lastIndex;
     const branch = isLast ? "└── " : "├── ";
-    const childPrefix = prefix + (depth > 0 ? (isLast ? "    " : "│   ") : "");
-    const linePrefix = childPrefix + branch;
+    const childPrefix = prefix + (isLast ? "    " : "│   ");
+    const linePrefix = prefix + branch;
 
     if (isDirectory) {
-      // Check if directory should be skipped
-      let shouldSkip = skipDirs.has(entry);
+      // Print the directory name
+      console.log(`${linePrefix}${entry}`);
       
-      // If not explicitly skipped and interactive mode is on, prompt for default dirs
-      if (!shouldSkip && interactive && DEFAULT_SKIP_DIRS.has(entry)) {
-        shouldSkip = await promptToSkip(entry);
-      } else if (DEFAULT_SKIP_DIRS.has(entry) && !interactive) {
-        // In non-interactive mode, use default behavior
-        shouldSkip = true;
-      }
-      
-      // If directory should be skipped, just skip it completely (don't print anything)
-      if (shouldSkip) {
-        continue;
-      }
-
-      // We've already handled the interactive case for default dirs above
-
-      // Show placeholder if next level would exceed
+      // Show placeholder if next level would exceed max depth
       if (depth + 1 === maxDepth) {
-        console.log(linePrefix + entry);
-        console.log(
-          childPrefix + (isLast ? "    " : "│   ") + "└── " + "[...]"
-        );
+        console.log(`${childPrefix}└── [...]`);
       } else {
-        console.log(linePrefix + entry);
-        await printTree({
-          dirPath: fullPath,
-          maxDepth,
-          prefix: childPrefix,
-          depth: depth + 1,
-          skipDirs,
-          interactive,
-        });
+        // Otherwise recursively print the contents
+        await printTreeWithSkips(fullPath, maxDepth, skipDirs, childPrefix, depth + 1);
       }
     } else {
-      console.log(linePrefix + entry);
+      // Print the file name
+      console.log(`${linePrefix}${entry}`);
     }
   }
+}
+
+/**
+ * Main function to print directory tree with interactive skipping
+ */
+export async function printTree({
+  dirPath,
+  maxDepth,
+  skipDirs = new Set(),
+  interactive = true, // Default to interactive mode for better UX
+}: PrintTreeOptions): Promise<void> {
+  // First collect all directories to skip based on user input
+  const allSkipDirs = await collectSkipDirectories(dirPath, maxDepth, skipDirs, interactive);
+  
+  // Then print the tree with all skip choices applied
+  await printTreeWithSkips(dirPath, maxDepth, allSkipDirs);
 }
